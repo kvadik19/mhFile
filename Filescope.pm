@@ -9,13 +9,13 @@ use Fcntl qw(:seek);
 sub new {
 	my $class = shift;
 	my $init = { @_ };
+
 	die "Need Filename to watch" unless $init->{'filename'};
+	die "Cannot read $init->{'filename'}" unless -f( $init->{'filename'}) && -r( $init->{'filename'});
+	open( my $fh, "< $init->{'filename'}") || die "Cannot open $init->{'filename'}";
 
 	my $self = bless( $init, $class);
-
-	die "Cannot read $init->{'filename'}" unless -f( $init->{'filename'}) && -r( $init->{'filename'});
-
-	open( $self->{'fh'}, "< $init->{'filename'}") || die "Cannot open $init->{'filename'}";
+	$self->{'fh'} = $fh;
 
 	return $self;
 }
