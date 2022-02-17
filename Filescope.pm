@@ -1,9 +1,10 @@
-package Watchdog;
+package Filescope;
+
+# FileIO test exercise by mac-t@yandex.ru
+# Used 4 chars tab size
 
 use Time::HiRes;
-use Fcntl qw(:flock :seek);
-
-use Data::Dumper;
+use Fcntl qw(:seek);
 
 sub new {
 	my $class = shift;
@@ -16,14 +17,13 @@ sub new {
 
 	open( $self->{'fh'}, "< $init->{'filename'}") || die "Cannot open $init->{'filename'}";
 
-	$self->content;
 	return $self;
 }
 #############
 sub size {	#	Optional functionality
 #############
 	my $self = shift;
-	$self->content;
+	$self->content;		# Update, if outdated
 	return $self->{'size'};
 }
 #############
@@ -31,12 +31,12 @@ sub content {
 #############
 	my $self = shift;
 	my $stat = [stat( $self->{'fh'})];
+
 	if ( $self->{'mtime'} != $stat->[9] ) {
 		$self->{'mtime'} = $stat->[9];
 		$self->{'size'} = $stat->[7];
-		$self->{'blksize'} = $stat->[10];
 		seek( $self->{'fh'}, 0, SEEK_SET);
-		sysread( $self->{'fh'}, $self->{'content'}, $self->{'blksize'});
+		sysread( $self->{'fh'}, $self->{'content'}, $self->{'size'});
 	}
 	return $self->{'content'};
 }
